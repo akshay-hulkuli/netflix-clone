@@ -57,7 +57,7 @@ const Header = ({ isBrowse }) => {
         <div className="flex items-center">
           <div className="flex flex-col items-center justify-evenly mx-2 py-1">
             <img
-              className="w-10 h-10 mx-4"
+              className="w-8 h-8 mx-4"
               src={USER_LOGO}
             />
             <span className="text-white text-lg">{user?.displayName}</span>
