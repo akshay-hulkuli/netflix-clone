@@ -1,9 +1,10 @@
-import { signOut } from "firebase/auth";
-import React from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { NETFLIX_LOGO, USER_LOGO } from "../utils/constants";
 import { auth } from "../utils/firebase";
-import { removeUser } from "../utils/userSlice";
+import { addUser, removeUser } from "../utils/userSlice";
 
 const Header = ({ isBrowse }) => {
   const dispatch = useDispatch();
@@ -21,11 +22,35 @@ const Header = ({ isBrowse }) => {
         console.log(error);
       });
   };
+
+  useEffect(() => {
+    const authEvent = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log(user);
+        dispatch(
+          addUser({
+            displayName: user.displayName,
+            email: user.email,
+            accessToken: user.accessToken,
+            uid: user.uid,
+          })
+        );
+        navigate("/browse");
+      } else {
+        // User is signed out
+        dispatch(removeUser());
+        navigate("/");
+      }
+    });
+
+    return () => authEvent();
+  }, []);
+
   return (
     <div className="px-8 py-2 bg-gradient-to-b from-black z-10 absolute top-0 w-[100%] flex justify-between">
       <img
         className="w-48 mx-20"
-        src="https://cdn.cookielaw.org/logos/dd6b162f-1a32-456a-9cfe-897231c7763c/4345ea78-053c-46d2-b11e-09adaef973dc/Netflix_Logo_PMS.png"
+        src={NETFLIX_LOGO}
         alt="logo"
       />
       {isBrowse && (
@@ -33,11 +58,14 @@ const Header = ({ isBrowse }) => {
           <div className="flex flex-col items-center justify-evenly mx-2 py-1">
             <img
               className="w-10 h-10 mx-4"
-              src="https://occ-0-6247-2164.1.nflxso.net/dnm/api/v6/K6hjPJd6cR6FpVELC5Pd6ovHRSk/AAAABdpkabKqQAxyWzo6QW_ZnPz1IZLqlmNfK-t4L1VIeV1DY00JhLo_LMVFp936keDxj-V5UELAVJrU--iUUY2MaDxQSSO-0qw.png?r=e6e"
+              src={USER_LOGO}
             />
             <span className="text-white text-lg">{user?.displayName}</span>
           </div>
-          <button className="m-2 text-white text-lg p-2" onClick={handleSignOut}>
+          <button
+            className="m-2 text-white text-lg p-2"
+            onClick={handleSignOut}
+          >
             Sign out
           </button>
         </div>

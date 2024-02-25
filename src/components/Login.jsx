@@ -7,14 +7,12 @@ import {
 import { checkValidaData } from "../utils/validate";
 import Header from "./Header";
 import { auth } from "../utils/firebase";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { LOGIN_BG } from "../utils/constants";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const emailRef = useRef("");
@@ -38,17 +36,7 @@ const Login = () => {
       )
         .then((userCredential) => {
           // Signed in
-          const user = userCredential.user;
-          dispatch(
-            addUser({
-              displayName: user.displayName,
-              email: user.email,
-              accessToken: user.accessToken,
-              uid: user.uid,
-            })
-          );
-          console.log("signin success", user);
-          navigate("/browse");
+          console.log("signin success", userCredential.user);
           // ...
         })
         .catch((error) => {
@@ -70,20 +58,19 @@ const Login = () => {
             displayName: nameRef.current.value,
           })
             .then(() => {
-              // Profile updated!
+              const { uid, email, displayName, accessToken } = auth.currentUser
+              dispatch(
+                addUser({
+                  displayName: displayName,
+                  email: email,
+                  accessToken: accessToken,
+                  uid: uid,
+                })
+              );
             })
             .catch((error) => {
               // An error occurred
             });
-          navigate("/browse");
-          dispatch(
-            addUser({
-              displayName: user.displayName,
-              email: user.email,
-              accessToken: user.accessToken,
-              uid: user.uid,
-            })
-          );
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -103,7 +90,7 @@ const Login = () => {
       <Header />
       <div className="absolute top-0 ">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/2e07bc25-8b8f-4531-8e1f-7e5e33938793/e4b3c14a-684b-4fc4-b14f-2b486a4e9f4e/IN-en-20240219-popsignuptwoweeks-perspective_alpha_website_large.jpg"
+          src={LOGIN_BG}
           alt="background"
         />
       </div>
