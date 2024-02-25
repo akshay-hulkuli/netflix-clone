@@ -21,17 +21,18 @@ const Body = () => {
     },
   ]);
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const uid = user.uid;
-        dispatch(addUser(user));
-      } else {
-        // User is signed out
-        dispatch(removeUser());
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       const uid = user.uid;
+  //       console.log(user);
+  //       dispatch(addUser(user));
+  //     } else {
+  //       // User is signed out
+  //       dispatch(removeUser());
+  //     }
+  //   });
+  // }, []);
 
   return (
     <div>

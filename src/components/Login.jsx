@@ -2,14 +2,17 @@ import React, { useRef, useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { checkValidaData } from "../utils/validate";
 import Header from "./Header";
 import { auth } from "../utils/firebase";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -36,8 +39,16 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          console.log("signin success");
-          navigate("/browse")
+          dispatch(
+            addUser({
+              displayName: user.displayName,
+              email: user.email,
+              accessToken: user.accessToken,
+              uid: user.uid,
+            })
+          );
+          console.log("signin success", user);
+          navigate("/browse");
           // ...
         })
         .catch((error) => {
@@ -55,7 +66,24 @@ const Login = () => {
           // Signed up
           const user = userCredential.user;
           console.log("Sign in is successful ", user);
-          navigate("/browse")
+          updateProfile(auth.currentUser, {
+            displayName: nameRef.current.value,
+          })
+            .then(() => {
+              // Profile updated!
+            })
+            .catch((error) => {
+              // An error occurred
+            });
+          navigate("/browse");
+          dispatch(
+            addUser({
+              displayName: user.displayName,
+              email: user.email,
+              accessToken: user.accessToken,
+              uid: user.uid,
+            })
+          );
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -67,6 +95,7 @@ const Login = () => {
 
   const handleToggleSignUpSignIn = () => {
     setIsSignInForm(!isSignInForm);
+    setErrorMessage("");
   };
 
   return (
